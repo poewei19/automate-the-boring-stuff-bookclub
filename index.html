@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>《Python编程快速上手》读书会简明版</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#0F6B5E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="编程读书会">
+<meta name="description" content="用小学五年级就能看懂的话，讲《Python编程快速上手》里最有用的想法。可以划线提问，把问题发给作者。">
+<style>
+/* Layout: one chapter per screen, sticky top bar, bottom bar appears when text is selected.
+   No web fonts or CDNs: everything is in this file so it opens fine in China and inside WeChat. */
+:root {
+  --bg: #F3F5F2;
+  --paper: #FFFFFF;
+  --ink: #1E2823;
+  --muted: #5B6A62;
+  --line: #DCE3DE;
+  --accent: #0F6B5E;
+  --accent-soft: #E0EFEB;
+  --mark: #FFE38A;
+  --mark-on: #F5C842;
+  --warn: #B4532A;
+  --font: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+  --font-title: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121815; --paper: #1A221E; --ink: #E4ECE7; --muted: #9BADA3; --line: #2C3832;
+    --accent: #6CC7B4; --accent-soft: #1F3530; --mark: #6A5A16; --mark-on: #8C7618; --warn: #E08A62;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 18px/1.85 var(--font); }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 680px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+
+header { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top); }
+header .wrap { display: flex; align-items: center; gap: 8px; padding-block: 10px; }
+.brand { flex: 1; min-width: 0; font: 700 1rem/1.3 var(--font-title); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbtn { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 6px 14px; font-size: .9rem; cursor: pointer; white-space: nowrap; }
+.tbtn b { color: var(--accent); }
+
+main .wrap { padding-block: 20px 120px; }
+article { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 22px 20px; }
+.kicker { font-size: .85rem; color: var(--muted); margin: 0 0 4px; }
+h1 { font: 700 1.55rem/1.4 var(--font-title); margin: 0 0 18px; }
+h2.lbl { font-size: .9rem; font-weight: 700; color: var(--accent); margin: 22px 0 4px; letter-spacing: .05em; }
+p { margin: 0 0 10px; }
+.one { font: 700 1.2rem/1.7 var(--font-title); }
+ul, ol { margin: 0 0 10px; padding-left: 1.4em; }
+li { margin-bottom: 4px; }
+.example { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; }
+mark.hl { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; cursor: pointer; }
+mark.hl.on { background: var(--mark-on); }
+
+.task { display: flex; gap: 10px; align-items: flex-start; border: 1px dashed var(--line); border-radius: 10px; padding: 12px; cursor: pointer; }
+.task input { width: 22px; height: 22px; margin-top: 5px; accent-color: var(--accent); flex-shrink: 0; }
+
+.check { margin-top: 26px; border-top: 1px solid var(--line); padding-top: 16px; }
+.check p { color: var(--muted); font-size: .95rem; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 16px; cursor: pointer; font-size: .95rem; }
+.choice[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+.hint { font-size: .85rem; color: var(--muted); }
+
+.pager { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
+.pbtn { flex: 1; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 12px; cursor: pointer; text-align: left; font-size: .95rem; min-width: 0; }
+.pbtn.next { text-align: right; }
+.pbtn small { display: block; color: var(--muted); font-size: .8rem; }
+.pbtn[hidden] { visibility: hidden; display: block; }
+
+.toc a { display: flex; justify-content: space-between; gap: 10px; padding: 12px 4px; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none; }
+.toc a:last-child { border-bottom: 0; }
+.toc .meta { color: var(--muted); font-size: .85rem; white-space: nowrap; }
+
+/* Bottom bar: shows while text is selected, so phone users can ask about it. */
+.selbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; background: var(--ink); color: var(--paper); padding: 12px max(16px, env(safe-area-inset-left)) calc(12px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 12px; justify-content: center; }
+.selbar button { background: var(--mark); color: #1E2823; border: 0; border-radius: 999px; padding: 10px 20px; font-weight: 700; cursor: pointer; }
+.fab { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 6; background: var(--accent); color: var(--paper); border: 0; border-radius: 999px; padding: 12px 18px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.18); cursor: pointer; }
+
+.sheet-bg { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,.4); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 680px; max-height: 88vh; overflow: auto; background: var(--paper); border-radius: 16px 16px 0 0; padding: 18px max(16px, env(safe-area-inset-left)) calc(18px + env(safe-area-inset-bottom)); }
+.sheet h3 { margin: 0 0 8px; font: 700 1.15rem/1.4 var(--font-title); }
+.quote { border-left: 3px solid var(--mark-on); padding-left: 10px; color: var(--muted); margin: 0 0 12px; font-size: .95rem; }
+textarea, input[type="text"] { width: 100%; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 10px; font: inherit; font-size: 1rem; }
+textarea { min-height: 96px; resize: vertical; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--paper); border-radius: 10px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn.danger { background: transparent; border-color: var(--warn); color: var(--warn); }
+.note { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+.note .q { margin: 4px 0 0; }
+.note a { color: var(--accent); font-size: .85rem; }
+.toast { position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 8px 16px; border-radius: 999px; font-size: .9rem; z-index: 20; }
+button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.install { display: flex; gap: 10px; align-items: center; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; font-size: .9rem; line-height: 1.6; }
+.install span { flex: 1; }
+.install button { border: 0; background: var(--accent); color: var(--paper); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
+/* Tablets (iPad mini is 744px wide in portrait): a little larger text, roomier page, centered dialogs. */
+@media (min-width: 700px) {
+  body { font-size: 19px; }
+  .wrap { max-width: 720px; }
+  article { padding: 32px 36px; }
+  h1 { font-size: 1.75rem; }
+  .sheet-bg { align-items: center; }
+  .sheet { border-radius: 16px; max-width: 600px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">《Python编程快速上手》读书会简明版</div>
+    <button class="tbtn" id="tocBtn">目录</button>
+    <button class="tbtn" id="myBtn">我的问题 <b id="myCount">0</b></button>
+  </div>
+</header>
+
+<main><div class="wrap" id="view"></div></main>
+
+<div class="selbar" id="selbar" hidden><span>选中了一段文字</span><button id="askBtn">对这段提问</button></div>
+<button class="fab" id="fab">提个问题</button>
+<div id="sheetRoot"></div>
+
+<script>
+// ---------- settings for whoever publishes this ----------
+const CONFIG = {
+  // Shown on the "我的问题" page so readers know where to send feedback.
+  sendTo: "把复制好的内容发给分享这个链接给你的朋友（微信就可以）。",
+  // Optional: a URL that accepts a JSON POST (for example a form service). Leave empty to use copy/share only.
+  feedbackUrl: "",
+};
+
+// ---------- content (plain-language guide written for this book club; not a translation of the book) ----------
+const INTRO = {
+  id: "intro", title: "怎么用这份讲义",
+  blocks: [
+    { p: "这是一份读书会讲义：用小学五年级就能看懂的话，讲阿尔·斯维加特《Python编程快速上手：让繁琐工作自动化》（英文书名 Automate the Boring Stuff with Python，第2版）里最有用的想法，每章配一个生活例子和一个这周就能做的小练习。它不是原书的翻译，想读原文的朋友可以找中文版。" },
+    { p: "这本书的意思是：你不用成为程序员，也能学会让电脑替你干那些重复、无聊的活，比如改几百个文件名、整理表格、批量处理照片。Python是一种对新手很友好的编程语言，免费，全世界用的人很多。" },
+    { p: "前6章教最基本的编程，后14章每章教一种“偷懒”的本事。真正写代码需要一台电脑；没有电脑也没关系，每章的小练习大多用手机和纸笔就能做，先学会“用编程的方式想问题”。现在的AI工具也能帮你写代码，你懂一点基础，就能看懂它写的对不对，还能改。" },
+    { p: "每章都分四块，读一章大约5分钟：" },
+    { ol: ["一句话：这一章最重要的想法。", "大白话：用简单的话把它讲清楚。", "生活里的例子：放到工作和生活里，它是什么样子。", "这周试一试：一个小练习，做完打个勾。"] },
+    { p: "建议一周读一两章，读完和朋友聊10分钟。不用全部看懂，能用上一个想法就是收获。" },
+    { p: "看不懂的地方，用手指按住文字选中它，点下面的“对这段提问”，写下你的问题。所有问题都在右上角“我的问题”里，可以一键复制发给作者。" },
+  ],
+};
+
+const CHAPTERS = [
+  { n: "第1章", t: "跟电脑说的第一句话",
+    one: "编程就是用电脑听得懂的话，告诉它一步一步做什么。",
+    plain: [{ p: "在Python里输入 2+3，它马上回答 5。你还可以给一个数起个名字，比如“单数 = 30”，这叫“变量”，像一个贴了标签的盒子，里面放着东西。让电脑在屏幕上说话，用 print；让它问你问题，用 input。电脑很听话，但一点都不会猜，少一个符号它就看不懂。" }],
+    ex: "骑手算一天收入：单数 × 每单的钱 + 补贴。写成程序就是一行算式，以后每天只要改“单数”这一个数，结果自动出来。",
+    task: "写下一个你每天都要算的东西（收入、开销、训练次数），把它写成“结果 = ……”的算式。有电脑的话，装上Python，输入 print('你好') 试试。" },
+  { n: "第2章", t: "如果……就……",
+    one: "程序会做判断：如果满足条件就做这个，否则做那个，还能一直重复。",
+    plain: [{ p: "编程里最常用的是“如果……就……否则……”，英文叫 if 和 else。还有“重复”，叫循环：让电脑把一件事做100遍，它也不嫌烦。判断加重复，就能写出很多有用的小程序。" }],
+    ex: "骑手挑单的规矩其实就是程序：如果距离超过5公里，而且钱少于6块，就不接；否则就接。每来一单，重复用这条规矩判断一次。",
+    task: "写下你工作里三条“如果……就……否则……”的规矩。" },
+  { n: "第3章", t: "把常用的步骤打包",
+    one: "把一串常用的步骤打包起来，起个名字，以后一句话就能用。",
+    plain: [{ p: "如果一段步骤要用很多次，就把它打包成一个“函数”，起个名字。以后要用，只要喊它的名字，不用每次重写。函数还可以接收东西、交回结果，比如给它身高体重，它交回一个数字。" }],
+    ex: "私教的“热身五分钟”就像一个函数：每个学员上课前都做同一套。厨房里“调糖醋汁”也是：配方定好，哪道菜要用就调一份。",
+    task: "挑一套你经常重复的步骤，给它起个名字，把步骤按顺序写下来，最多五步。" },
+  { n: "第4章", t: "列表：一串排好队的东西",
+    one: "列表把很多东西按顺序放在一起，可以增加、删除、排序。",
+    plain: [{ p: "列表就像排队：第一个、第二个、第三个……可以往后面加，可以拿掉一个，也可以按大小排序。注意：在Python里，排在最前面的那个，编号是0，不是1。" }],
+    ex: "外卖平台上的待送订单就是一个列表：新单加到后面，送完的拿掉，还能按时间远近重新排。",
+    task: "写下今天要做的五件事，再按“最急的先做”重新排一遍。" },
+  { n: "第5章", t: "字典：按名字找东西",
+    one: "字典用“名字：内容”成对地存东西，按名字一查就到。",
+    plain: [{ p: "列表按顺序找，字典按名字找。比如“301：张先生”“302：空房”。你问301住着谁，电脑马上告诉你，不用从头翻。很多数据都可以这样一对一对地存。" }],
+    ex: "酒店前台的房态表就是一本字典：房号对应客人。手机通讯录也是：名字对应电话号码。",
+    task: "写五对“名字：内容”，比如“学员小李：72公斤”或“孩子：周五要交作业”。" },
+  { n: "第6章", t: "处理文字",
+    one: "程序能批量修改、查找、拼接文字，省掉大量复制粘贴。",
+    plain: [{ p: "电脑里的文字叫“字符串”。程序可以把文字拼起来、把一个词换成另一个、把所有字母改成大写、把一长串文字切成几段。一段话改一次没什么，要改几百段，用程序就快多了。" }],
+    ex: "健身房要给50个会员发生日祝福，每条只是名字不同。写一个模板“祝____生日快乐，本月来上课送一次体测”，程序把名字填进去，一下生成50条。",
+    task: "找一段你经常重复打的文字（地址、问候、介绍自己），写成一个留空填名字的模板。" },
+  { n: "第7章", t: "按规律找文字",
+    one: "“正则表达式”能按规律找文字，比如从一大堆字里找出所有手机号。",
+    plain: [{ p: "有时候你要找的不是某个固定的词，而是有规律的一类东西：手机号、日期、身份证号。“正则表达式”就是描述这种规律的小语言，比如“1开头、一共11位数字”。写好规律，程序就能把所有符合的都找出来。" }],
+    ex: "饭店老板想从几百条订餐留言里，把客人的手机号都挑出来做会员。人眼看要一下午，按规律找只要几秒。",
+    task: "用一句话写出这些东西的规律：手机号、日期（比如2026-10-29）、你的车牌号。" },
+  { n: "第8章", t: "先检查，再收下",
+    one: "别人输入的东西可能是错的，程序要先检查，不对就请他重填。",
+    plain: [{ p: "让别人填信息，总会有人填错：电话少一位、年龄写成“二十”、日期格式乱写。好程序会先检查，不合格就提醒重填，而不是把错的收下来，后面再出大问题。" }],
+    ex: "外卖地址填错一个楼号，骑手就得多跑半天。很多App在你填手机号时，少一位就不让你点“下一步”，这就是在检查输入。",
+    task: "回想你最近填过的一张表或一个App，写下它检查了你哪些东西（比如手机号位数）。" },
+  { n: "第9章", t: "读文件，写文件",
+    one: "程序能打开文件读内容，也能把结果存进文件，关掉电脑也不会丢。",
+    plain: [{ p: "程序算出来的东西，如果不存，关掉就没了。存进文件，下次还能接着用。每个文件都有一个“路径”，就像它在电脑里的地址：哪个盘、哪个文件夹、叫什么名字。" }],
+    ex: "就像你的快递地址：省、市、小区、楼号、门牌号。文件路径也是一层一层写下去，写错一层，程序就找不到。",
+    task: "在手机的“文件”里，找到你拍的照片存在哪个文件夹，把这个“地址”写下来。" },
+  { n: "第10章", t: "整理文件",
+    one: "程序能批量复制、移动、改名、压缩文件，几千个也不怕。",
+    plain: [{ p: "手动改几个文件名不难，改几千个就累死了。程序可以照着规则一下子处理完：按日期改名、按类型分文件夹、把整个文件夹打包备份。作者还提醒：删除文件前，先让程序只“打印出来要删哪些”，确认没错再真删。" }],
+    ex: "手机里几千张孩子和猫的照片乱成一团。规则可以是：按拍摄月份分文件夹，名字改成“2026-10-孩子生日”。电脑上用程序，几分钟就整理好了。",
+    task: "想一个整理照片的规则（按月份、按人、按事），先手动整理20张试试。" },
+  { n: "第11章", t: "程序出错了怎么办",
+    one: "出错很正常，读懂报错、一步一步排查，就能找到问题。",
+    plain: [{ p: "写程序一定会出错，高手也一样。Python出错时会给一段“报错信息”，告诉你哪一行出了什么问题，别怕它，要认真读。还可以在程序里加几行“打印看看”，看每一步的结果对不对，一步步缩小范围。" }],
+    ex: "电动车突然不走了：先看有没有电，再看刹车有没有卡住，再看线有没有松。一步一步排查，比乱拍乱踢管用。修程序也是这个道理。",
+    task: "下次有东西坏了（手机、车、App），先写下三步检查顺序，再照着查。" },
+  { n: "第12章", t: "让程序帮你上网",
+    one: "程序能自动打开网页、下载内容、找出你要的信息。",
+    plain: [{ p: "每天打开同几个网页看价格、看天气、看通知，可以交给程序：它自动打开网页，把你要的那几个数字挑出来。注意规矩：只拿公开的信息，遵守网站的规定，不要一秒钟访问几百次，那样会给别人的网站添麻烦。" }],
+    ex: "想买一个自行车零件，等它降价。程序每天帮你看一次价格，降到你想要的数就提醒你。",
+    task: "写下你每天都要打开看的两个网页或App页面，想一想：你其实只关心上面的哪个数字？" },
+  { n: "第13章", t: "让程序帮你做表格",
+    one: "程序能读、写、修改Excel表格，几千行也不累。",
+    plain: [{ p: "很多工作都离不开表格。程序可以打开Excel，读出每一行，算总数、找出不对的数、改格式，再存成新表格。每周都要做一次的表，写一次程序，以后点一下就做完了。" }],
+    ex: "餐厅每周要把采购单汇总成一张表，算出每样菜花了多少钱。人工要一下午，程序几秒钟，还不会算错。",
+    task: "用手机上的表格软件（比如WPS），做一张小表：记下这周每天的收入或开销。" },
+  { n: "第14章", t: "网上的共享表格",
+    one: "多人一起用的网上表格，也能让程序自动读写。",
+    plain: [{ p: "书里这一章讲的是谷歌的在线表格，程序可以直接往里面读和写，一群人打开都能看到最新的。在国内一般用不了谷歌，但腾讯文档、金山文档这类在线表格是一样的道理：大家共用一张表，随时更新。" }],
+    ex: "几个骑手或服务员排班，用一张在线表格，谁换班就直接改，大家都能马上看到，不用在群里刷一百条消息。",
+    task: "和一个朋友建一张共享在线表格（比如读书会签到表），两个人都在上面写一行。" },
+  { n: "第15章", t: "处理PDF和Word文件",
+    one: "程序能从PDF里取文字、合并文件，还能批量生成Word文件。",
+    plain: [{ p: "程序可以把好几个PDF合成一个，把里面的文字取出来，也能照着一个模板生成很多份Word文件，每份只换几个字。需要一份份手工填的东西，都可以考虑交给它。" }],
+    ex: "健身房搞活动，要给100个学员每人做一张“结业证书”，只是名字和日期不同。用模板加程序，一下子生成100份。",
+    task: "数一数：你一个月要手工填多少份格式一样的东西（单子、表格、证明）？" },
+  { n: "第16章", t: "两种常见的数据格式",
+    one: "CSV是用逗号隔开的简单表格，JSON是App之间互相传数据用的格式。",
+    plain: [{ p: "CSV文件就是把表格存成纯文字，每行一条，每格之间用逗号隔开，很多软件都能打开。JSON像一种整齐的“问答单”，网站和App之间传数据常用它。看懂这两种格式，你就能把别的软件导出的数据拿来自己用。" }],
+    ex: "很多支付软件可以把账单导出成表格文件。拿到这个文件，程序就能帮你算出：这个月外卖花了多少，买烟花了多少。",
+    task: "看看你常用的支付软件有没有“导出账单”的功能，找到它在哪儿就行，不用真的导出。" },
+  { n: "第17章", t: "定时做事",
+    one: "程序能看时间、等一会儿、到点自动运行，还能打开别的软件。",
+    plain: [{ p: "程序能知道现在几点，能算两个时间差多少，能“睡”几秒再继续，也能让电脑每天到点自动运行某个程序。这样很多事情就不用你记着、守着了。" }],
+    ex: "每天早上7点自动查好天气，下雨就提醒你带雨衣。手机里的“快捷指令”或“自动化”功能，也是同一个道理，不用写代码就能试试。",
+    task: "给你的一个好习惯设一个每天固定时间的手机提醒。" },
+  { n: "第18章", t: "自动发邮件和短信",
+    one: "程序能批量给不同的人发不同的邮件或短信。",
+    plain: [{ p: "程序可以登录邮箱，按名单一封封发信，每封内容按人不同；也可以借助专门的服务发短信。要守规矩：只发给同意接收的人，不要群发广告骚扰别人，也要保护好别人的电话和信息。" }],
+    ex: "私教有30个学员，每月月底要提醒会员卡快到期的人续卡。程序从表格里找出快到期的，自动发一条带名字的提醒。",
+    task: "写一条提醒消息的模板，留出名字和日期两个空。" },
+  { n: "第19章", t: "批量处理图片",
+    one: "程序能批量改图片大小、裁剪、加文字或标志。",
+    plain: [{ p: "图片在电脑里是由很多小点组成的，每个点有自己的颜色。程序可以一次处理几百张图：缩小、裁成一样的尺寸、在角落加上店名或标志。手工一张张修，太费时间。" }],
+    ex: "饭店上新菜单，要给100张菜品照片都裁成同样大小，再在角落加上店名。程序几分钟就能做完。",
+    task: "数一数：你最近有没有用同样的方式修过很多张照片（裁剪、加字、调亮）？" },
+  { n: "第20章", t: "让程序替你点鼠标",
+    one: "程序能控制鼠标和键盘，替你在软件里一下下地点和打字。",
+    plain: [{ p: "有些老软件没有别的办法，只能人一下下点。程序可以控制鼠标移动、点击、打字，替你点。但它是“闭着眼睛”点的，屏幕一变就可能点错。作者教了一个保险办法：把鼠标快速甩到屏幕角落，程序就会停下来。" }],
+    ex: "把100行数据一条条录进公司的老系统，可以交给程序。但别用它在手游里“挂机”刷东西，那违反游戏规则，可能被封号。",
+    task: "找一件你在手机或电脑上重复点很多次的事，用手机计时，看看一次要花多久。" },
+];
+
+const CLUB = {
+  id: "club", title: "读书会怎么开",
+  blocks: [
+    { p: "每周一次，每次30分钟，当面或视频都可以。人不用多，两三个就够。" },
+    { ol: ["先聊上周（5分钟）：上周的“试一试”做了没有？发生了什么？", "一起读（10分钟）：轮流读这周的一两章。有电脑的话，一起把例子敲一遍。", "聊三个问题（10分钟）：这一章讲的本事，你工作里哪件事用得上？哪里没看懂？如果有人帮你写好这个程序，你每周能省下多少时间？", "定下周的小行动（5分钟）：每个人说出自己这周要试的一件事。"] },
+    { p: "小提醒：报错不丢人，大家都会遇到；看不懂就问，也可以问AI；这不是考试，是朋友一起变好的时间。" },
+  ],
+};
+CHAPTERS.forEach((c, i) => { c.id = "c" + (i + 1); });
+const PAGES = [INTRO, ...CHAPTERS, CLUB];
+const pageIdx = (id) => PAGES.findIndex((p) => p.id === id);
+const pageName = (p) => p.n ? `${p.n}　${p.t}` : p.title;
+
+// ---------- reader data, kept only on this phone ----------
+const KEY = "python-bookclub-v1";
+let state = { notes: [], tasks: {}, level: {}, name: "", last: "intro" };
+try { state = Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+if (!state.reader) state.reader = "r" + Math.random().toString(36).slice(2, 10);
+// With CONFIG.feedbackUrl set, every save is also sent to the organizer (batched a few seconds), so readers don't have to send anything.
+let syncTimer = null;
+function autoSend() {
+  if (!CONFIG.feedbackUrl) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    fetch(CONFIG.feedbackUrl, { method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
+      body: JSON.stringify({ reader: state.reader, name: state.name, notes: state.notes, level: state.level, tasks: state.tasks, text: feedbackText(), at: new Date().toISOString() }) })
+      .then((r) => { state.sentAt = r.ok ? new Date().toISOString() : state.sentAt; persist(); })
+      .catch(() => {});
+  }, 3000);
+}
+const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const save = () => { persist(); autoSend(); };
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+let pidSeq = 0;
+const para = (cls, html) => `<p data-pid="${pidSeq++}"${cls ? ` class="${cls}"` : ""}>${html}</p>`;
+function blocksHTML(blocks) {
+  return blocks.map((b) => {
+    if (b.p) return para("", esc(b.p));
+    const tag = b.ol ? "ol" : "ul";
+    return `<${tag}>${(b.ol || b.ul).map((x) => `<li data-pid="${pidSeq++}">${esc(x)}</li>`).join("")}</${tag}>`;
+  }).join("");
+}
+
+// ---------- views ----------
+const LEVELS = ["都看懂了", "有一点难", "很多看不懂"];
+function renderPage(id) {
+  const i = Math.max(0, pageIdx(id));
+  const pg = PAGES[i];
+  state.last = pg.id; persist();
+  pidSeq = 0;
+  let body;
+  if (pg.n) {
+    body = `<p class="kicker">${esc(pg.n)}</p><h1>${esc(pg.t)}</h1>
+      <h2 class="lbl">一句话</h2>${para("one", esc(pg.one))}
+      <h2 class="lbl">大白话</h2>${blocksHTML(pg.plain)}
+      <h2 class="lbl">生活里的例子</h2>${para("example", esc(pg.ex))}
+      <h2 class="lbl">这周试一试</h2>
+      <label class="task"><input type="checkbox" id="taskBox" ${state.tasks[pg.id] ? "checked" : ""}><span data-pid="${pidSeq++}">${esc(pg.task)}</span></label>
+      <div class="check"><p>这一章你看懂了吗？（作者会根据大家的回答改进讲义）</p>
+        <div class="choices">${LEVELS.map((l, k) => `<button class="choice" data-level="${k}" aria-pressed="${state.level[pg.id] === k}">${l}</button>`).join("")}</div>
+        <p class="hint" style="margin-top:10px">哪里看不懂？按住文字选中它，点“对这段提问”。</p>
+      </div>`;
+  } else {
+    body = `<h1>${esc(pg.title)}</h1>${blocksHTML(pg.blocks)}`;
+  }
+  const prev = PAGES[i - 1], next = PAGES[i + 1];
+  $("#view").innerHTML = `<article id="art" data-page="${pg.id}">${body}</article>
+    <div class="pager">
+      <button class="pbtn" id="prevBtn" ${prev ? "" : "hidden"}><small>上一篇</small>${prev ? esc(pageName(prev)) : ""}</button>
+      <button class="pbtn next" id="nextBtn" ${next ? "" : "hidden"}><small>下一篇</small>${next ? esc(pageName(next)) : ""}</button>
+    </div>`;
+  if (prev) $("#prevBtn").onclick = () => go(prev.id);
+  if (next) $("#nextBtn").onclick = () => go(next.id);
+  const tb = $("#taskBox");
+  if (tb) tb.onchange = () => { state.tasks[pg.id] = tb.checked; save(); };
+  document.querySelectorAll("[data-level]").forEach((b) => b.onclick = () => {
+    const k = Number(b.dataset.level);
+    state.level[pg.id] = state.level[pg.id] === k ? undefined : k; save();
+    document.querySelectorAll("[data-level]").forEach((x) => x.setAttribute("aria-pressed", String(state.level[pg.id] === Number(x.dataset.level))));
+    if (k > 0 && state.level[pg.id] === k) toast("谢谢！可以选中看不懂的文字提个问题。");
+  });
+  applyHighlights(pg.id);
+  window.scrollTo(0, 0);
+}
+function renderToc() {
+  $("#view").innerHTML = `<article><h1>目录</h1><nav class="toc">${PAGES.map((p) => {
+    const n = state.notes.filter((x) => x.page === p.id).length;
+    const meta = [state.tasks[p.id] ? "已练习" : "", n ? `${n}个问题` : ""].filter(Boolean).join(" · ");
+    return `<a href="#${p.id}" data-go="${p.id}"><span>${esc(pageName(p))}</span><span class="meta">${meta}</span></a>`;
+  }).join("")}</nav></article>`;
+  window.scrollTo(0, 0);
+}
+// Navigation is driven by the page itself; the #hash is only kept in sync where the browser allows it
+// (some in-app viewers block hash changes, which broke the contents and previous/next buttons).
+let current = (() => { try { return location.hash.slice(1); } catch (e) { return ""; } })() || state.last;
+function go(id) {
+  current = id;
+  route();
+  try { if (location.hash.slice(1) !== id) history.pushState(null, "", "#" + id); } catch (e) {}
+}
+function route() {
+  if (current === "toc") renderToc();
+  else renderPage(pageIdx(current) >= 0 ? current : state.last);
+  $("#myCount").textContent = state.notes.length;
+}
+window.addEventListener("hashchange", () => { const id = location.hash.slice(1); if (id && id !== current) { current = id; route(); } });
+window.addEventListener("popstate", () => { const id = location.hash.slice(1) || state.last; if (id !== current) { current = id; route(); } });
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("[data-go]");
+  if (!a) return;
+  e.preventDefault();
+  closeSheet();
+  go(a.dataset.go);
+});
+$("#tocBtn").onclick = () => go("toc");
+$("#myBtn").onclick = openMine;
+
+// ---------- highlights ----------
+function textNodes(el) {
+  const out = [], w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  while (w.nextNode()) out.push(w.currentNode);
+  return out;
+}
+function wrapText(el, text, noteId) {
+  const nodes = textNodes(el);
+  const full = nodes.map((n) => n.nodeValue).join("");
+  const start = full.indexOf(text);
+  if (start < 0 || !text) return;
+  const end = start + text.length;
+  let pos = 0;
+  nodes.forEach((n) => {
+    const a = pos, b = pos + n.nodeValue.length;
+    pos = b;
+    const s = Math.max(start, a), e = Math.min(end, b);
+    if (s >= e) return;
+    const r = document.createRange();
+    r.setStart(n, s - a); r.setEnd(n, e - a);
+    const m = document.createElement("mark");
+    m.className = "hl"; m.dataset.note = noteId;
+    r.surroundContents(m);
+  });
+}
+function applyHighlights(page) {
+  state.notes.filter((x) => x.page === page).forEach((x) => {
+    const el = document.querySelector(`#art [data-pid="${x.pid}"]`);
+    if (el) wrapText(el, x.text, x.id);
+  });
+}
+document.addEventListener("click", (e) => {
+  const m = e.target.closest("mark.hl");
+  if (m && !hasSelection()) { e.preventDefault(); openNote(state.notes.find((x) => x.id === m.dataset.note)); }
+});
+
+// ---------- selecting text to ask ----------
+let pending = null;
+function hasSelection() { const s = window.getSelection(); return s && !s.isCollapsed && s.toString().trim().length > 0; }
+function readSelection() {
+  const s = window.getSelection();
+  if (!s || s.isCollapsed) return null;
+  const text = s.toString().replace(/\s+/g, " ").trim();
+  if (!text) return null;
+  const node = (n) => (n.nodeType === 1 ? n : n.parentElement);
+  const a = node(s.anchorNode)?.closest("[data-pid]"), b = node(s.focusNode)?.closest("[data-pid]");
+  const art = $("#art");
+  if (!art || !a || !art.contains(a)) return null;
+  // A selection across paragraphs is kept as the part inside the first one.
+  const el = a;
+  const inEl = a === b ? text : (el.textContent.includes(text) ? text : text.slice(0, 60));
+  return { page: art.dataset.page, pid: Number(el.dataset.pid), text: el.textContent.includes(inEl) ? inEl : el.textContent.slice(0, 60) };
+}
+document.addEventListener("selectionchange", () => {
+  const sel = readSelection();
+  pending = sel;
+  $("#selbar").hidden = !sel;
+  $("#fab").hidden = !!sel;
+});
+$("#askBtn").addEventListener("mousedown", (e) => e.preventDefault());
+$("#askBtn").onclick = () => {
+  const sel = pending || readSelection();
+  if (!sel) return;
+  window.getSelection().removeAllRanges();
+  $("#selbar").hidden = true; $("#fab").hidden = false;
+  openNote(null, sel);
+};
+$("#fab").onclick = () => {
+  const art = $("#art");
+  openNote(null, { page: art ? art.dataset.page : "intro", pid: -1, text: "" });
+};
+
+// ---------- sheets ----------
+function sheet(html) {
+  const root = $("#sheetRoot");
+  root.innerHTML = `<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  $("#sbg").addEventListener("click", (e) => { if (e.target.id === "sbg") closeSheet(); });
+  return root;
+}
+function closeSheet() { $("#sheetRoot").innerHTML = ""; }
+function openNote(note, sel) {
+  const isNew = !note;
+  const data = note || { id: "n" + Date.now().toString(36), page: sel.page, pid: sel.pid, text: sel.text, q: "", at: new Date().toISOString() };
+  const pg = PAGES[pageIdx(data.page)];
+  sheet(`<h3>${isNew ? "提一个问题" : "我的问题"}</h3>
+    <p class="hint">${esc(pageName(pg))}</p>
+    ${data.text ? `<p class="quote">${esc(data.text)}</p>` : ""}
+    <textarea id="qBox" placeholder="哪里看不懂？或者你想到了什么？随便写，写一半也行。">${esc(data.q)}</textarea>
+    <div class="row">
+      <button class="btn" id="saveQ">保存</button>
+      <button class="btn ghost" id="cancelQ">取消</button>
+      ${isNew ? "" : `<button class="btn danger" id="delQ">删除</button>`}
+    </div>`);
+  const box = $("#qBox");
+  setTimeout(() => box.focus(), 50);
+  $("#cancelQ").onclick = closeSheet;
+  $("#saveQ").onclick = () => {
+    data.q = box.value.trim();
+    if (!data.q && !data.text) { closeSheet(); return; }
+    if (isNew) state.notes.push(data);
+    save(); closeSheet(); route();
+    toast("已保存。在“我的问题”里可以发给作者。");
+  };
+  if (!isNew) $("#delQ").onclick = () => { state.notes = state.notes.filter((x) => x.id !== data.id); save(); closeSheet(); route(); };
+}
+
+// ---------- my questions + send to the author ----------
+function feedbackText() {
+  const lines = [`《Python编程快速上手》读书会简明版 · 读者反馈`, `读者：${state.name || "（没留名字）"}`, ""];
+  PAGES.forEach((p) => {
+    const notes = state.notes.filter((x) => x.page === p.id);
+    const lvl = state.level[p.id];
+    if (!notes.length && lvl === undefined && !state.tasks[p.id]) return;
+    lines.push(`【${pageName(p)}】`);
+    if (lvl !== undefined) lines.push(`看懂了吗：${LEVELS[lvl]}`);
+    if (state.tasks[p.id]) lines.push(`这周试一试：做了`);
+    notes.forEach((x) => {
+      if (x.text) lines.push(`· 划线：「${x.text}」`);
+      lines.push(`  问题：${x.q || "（没写问题）"}`);
+    });
+    lines.push("");
+  });
+  return lines.join("\n").trim();
+}
+function openMine() {
+  const notes = state.notes;
+  sheet(`<h3>我的问题（${notes.length}）</h3>
+    ${notes.length ? notes.map((x) => {
+      const p = PAGES[pageIdx(x.page)];
+      return `<div class="note"><a href="#${x.page}" data-go="${x.page}">${esc(pageName(p))}</a>${x.text ? `<p class="quote" style="margin:4px 0 0">${esc(x.text)}</p>` : ""}<p class="q">${esc(x.q || "（没写问题）")}</p></div>`;
+    }).join("") : `<p class="hint">还没有问题。读的时候按住文字选中，点“对这段提问”。</p>`}
+    <h3 style="margin-top:18px">发给作者</h3>
+    <p class="hint">${CONFIG.feedbackUrl ? "你的问题保存后会自动发给作者，不用再做什么。下面的按钮可以再发一份到微信。" : esc(CONFIG.sendTo)}</p>
+    <input type="text" id="nameBox" placeholder="你的名字或昵称（可以不填）" value="${esc(state.name)}">
+    <div class="row">
+      <button class="btn" id="sendBtn">复制，去微信发送</button>
+      ${navigator.share ? `<button class="btn ghost" id="shareBtn">用其他方式分享</button>` : ""}
+      <button class="btn ghost" id="closeMine">关闭</button>
+    </div>
+    <textarea id="fbText" readonly style="margin-top:12px;min-height:140px" aria-label="要发送的内容"></textarea>
+    <p class="hint">复制不成功的话，可以长按上面的文字全选复制。</p>`);
+  const fb = $("#fbText");
+  const refresh = () => { state.name = $("#nameBox").value.trim(); save(); fb.value = feedbackText(); };
+  refresh();
+  $("#nameBox").oninput = refresh;
+  $("#closeMine").onclick = closeSheet;
+  $("#sendBtn").onclick = async () => {
+    refresh();
+    if (CONFIG.feedbackUrl) {
+      try { await fetch(CONFIG.feedbackUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: state.name, text: fb.value, notes: state.notes, level: state.level, tasks: state.tasks }) }); toast("已发送，谢谢！"); return; } catch (e) {}
+    }
+    if (await copy(fb.value)) toast("已复制，打开微信粘贴发送就行。");
+    else { fb.focus(); fb.select(); toast("请长按文字，选“全选”再复制。"); }
+  };
+  const sb = $("#shareBtn");
+  if (sb) sb.onclick = () => { refresh(); navigator.share({ title: "读书会反馈", text: fb.value }).catch(() => {}); };
+}
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  try {
+    const t = document.createElement("textarea");
+    t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy"); t.remove(); return ok;
+  } catch (e) { return false; }
+}
+let toastTimer;
+function toast(msg) {
+  let t = $(".toast");
+  if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 2600);
+}
+
+route();
+
+// ---------- install as a home-screen app ----------
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+(function installHint() {
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone || state.hideInstall) return;
+  const ua = navigator.userAgent;
+  let how;
+  if (/MicroMessenger/i.test(ua)) how = "点右上角“⋯”，选“在浏览器打开”，再把它添加到主屏幕。";
+  else if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) how = "点下方的“分享”按钮，选“添加到主屏幕”。";
+  else if (/Android/i.test(ua)) how = "点浏览器菜单“⋮”，选“添加到主屏幕”或“安装应用”。";
+  else return;
+  const bar = document.createElement("div");
+  bar.className = "install";
+  bar.innerHTML = `<span><b>放到手机桌面，像App一样打开：</b>${how}</span><button aria-label="关闭">知道了</button>`;
+  const box = document.createElement("div");
+  box.className = "wrap"; box.style.paddingTop = "16px";
+  box.appendChild(bar);
+  bar.querySelector("button").onclick = () => { state.hideInstall = true; persist(); box.remove(); };
+  document.querySelector("main").prepend(box);
+})();
+</script>
+</body>
+</html>
